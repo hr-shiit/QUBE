@@ -1,0 +1,8 @@
+build/
+.aptos/
+.movement/
+node_modules/
+*.log
+.DS_Store
+.vscode/
+.idea/
