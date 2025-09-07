@@ -4,7 +4,7 @@ version = "1.0.0"
 authors = ["BTC Lending Platform Team"]
 
 [addresses]
-btc_lending_platform = "_"
+btc_lending_platform = "0x5e25225f13c79a741fa58f8db5c6c8aa4da5f5113553592c797a8d1588ddf01b"
 
 [dev-addresses]
 

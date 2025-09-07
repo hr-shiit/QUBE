@@ -1,0 +1,281 @@
+{
+  "btc_lending_platform": {
+    "package_name": "btc_lending_platform",
+    "version": "1.0.0",
+    "contracts": {
+      "interest_rate_model": {
+        "address": "YOUR_WALLET_ADDRESS::interest_rate_model",
+        "functions": {
+          "initialize": {
+            "signature": "public fun initialize(admin: &signer): address",
+            "description": "Initialize the interest rate model with default rates"
+          },
+          "get_interest_rate": {
+            "signature": "public fun get_interest_rate(ltv_ratio: u64): u64",
+            "description": "Get interest rate for a given LTV ratio"
+          },
+          "update_interest_rate": {
+            "signature": "public fun update_interest_rate(admin: &signer, ltv_ratio: u64, new_rate: u64)",
+            "description": "Update interest rate for a given LTV ratio (admin only)"
+          },
+          "transfer_admin": {
+            "signature": "public fun transfer_admin(admin: &signer, new_admin: address)",
+            "description": "Transfer admin privileges"
+          }
+        },
+        "events": {
+          "InterestRateUpdatedEvent": {
+            "fields": ["ltv_ratio: u64", "old_rate: u64", "new_rate: u64"]
+          },
+          "AdminUpdatedEvent": {
+            "fields": ["old_admin: address", "new_admin: address"]
+          }
+        }
+      },
+      "collateral_vault": {
+        "address": "YOUR_WALLET_ADDRESS::collateral_vault",
+        "functions": {
+          "initialize": {
+            "signature": "public fun initialize(admin: &signer, loan_manager_address: address): address",
+            "description": "Initialize the collateral vault"
+          },
+          "deposit_collateral": {
+            "signature": "public fun deposit_collateral(user: &signer, amount: u64)",
+            "description": "Deposit BTC collateral (mint ctrlBTC tokens)"
+          },
+          "withdraw_collateral": {
+            "signature": "public fun withdraw_collateral(user: &signer, amount: u64)",
+            "description": "Withdraw BTC collateral (burn ctrlBTC tokens)"
+          },
+          "lock_collateral": {
+            "signature": "public fun lock_collateral(loan_manager: &signer, user_address: address, amount: u64)",
+            "description": "Lock collateral for a loan (loan manager only)"
+          },
+          "unlock_collateral": {
+            "signature": "public fun unlock_collateral(loan_manager: &signer, user_address: address, amount: u64)",
+            "description": "Unlock collateral after loan repayment (loan manager only)"
+          },
+          "get_user_collateral": {
+            "signature": "public fun get_user_collateral(user_address: address): u64",
+            "description": "Get user's total collateral balance"
+          },
+          "get_user_locked_collateral": {
+            "signature": "public fun get_user_locked_collateral(user_address: address): u64",
+            "description": "Get user's locked collateral amount"
+          },
+          "get_user_available_collateral": {
+            "signature": "public fun get_user_available_collateral(user_address: address): u64",
+            "description": "Get user's available collateral"
+          },
+          "update_loan_manager_address": {
+            "signature": "public fun update_loan_manager_address(admin: &signer, new_loan_manager: address)",
+            "description": "Update loan manager address (admin only)"
+          },
+          "transfer_admin": {
+            "signature": "public fun transfer_admin(admin: &signer, new_admin: address)",
+            "description": "Transfer admin privileges"
+          },
+          "pause_vault": {
+            "signature": "public fun pause_vault(admin: &signer)",
+            "description": "Pause vault operations"
+          },
+          "unpause_vault": {
+            "signature": "public fun unpause_vault(admin: &signer)",
+            "description": "Unpause vault operations"
+          }
+        },
+        "events": {
+          "DepositEvent": {
+            "fields": ["user: address", "amount: u64", "new_total_balance: u64"]
+          },
+          "WithdrawalEvent": {
+            "fields": ["user: address", "amount: u64", "new_total_balance: u64"]
+          },
+          "CollateralLockedEvent": {
+            "fields": ["user: address", "amount: u64", "loan_id: u64"]
+          },
+          "CollateralUnlockedEvent": {
+            "fields": ["user: address", "amount: u64", "loan_id: u64"]
+          },
+          "LoanManagerUpdatedEvent": {
+            "fields": ["old_address: address", "new_address: address"]
+          },
+          "AdminUpdatedEvent": {
+            "fields": ["old_admin: address", "new_admin: address"]
+          },
+          "PauseStateChangedEvent": {
+            "fields": ["is_paused: bool"]
+          }
+        }
+      },
+      "loan_manager": {
+        "address": "YOUR_WALLET_ADDRESS::loan_manager",
+        "functions": {
+          "initialize": {
+            "signature": "public fun initialize(admin: &signer, collateral_vault_address: address, interest_rate_model_address: address): address",
+            "description": "Initialize the loan manager"
+          },
+          "create_loan": {
+            "signature": "public fun create_loan(admin: &signer, borrower_address: address, collateral_amount: u64, ltv_ratio: u64)",
+            "description": "Create a new loan (admin function)"
+          },
+          "repay_loan": {
+            "signature": "public fun repay_loan(admin: &signer, borrower_address: address, loan_id: u64, repayment_amount: u64)",
+            "description": "Repay a loan (admin function)"
+          },
+          "close_loan": {
+            "signature": "public fun close_loan(admin: &signer, loan_id: u64)",
+            "description": "Close a loan (admin function)"
+          },
+          "calculate_interest_owed": {
+            "signature": "public fun calculate_interest_owed(loan_id: u64): u64",
+            "description": "Calculate interest owed for a loan"
+          },
+          "get_loan": {
+            "signature": "public fun get_loan(loan_id: u64): (address, u64, u64, u64, u64, u64, u64, u8)",
+            "description": "Get loan details (borrower, collateral_amount, principal, interest_rate, created_at, due_date, outstanding_balance, state)"
+          },
+          "get_borrower_loans": {
+            "signature": "public fun get_borrower_loans(borrower_address: address): vector<u64>",
+            "description": "Get all loans for a borrower"
+          },
+          "get_system_stats": {
+            "signature": "public fun get_system_stats(): (u64, u64, u64, u64)",
+            "description": "Get system statistics (total_loans, active_loans, total_debt, total_collateral)"
+          },
+          "update_collateral_vault_address": {
+            "signature": "public fun update_collateral_vault_address(admin: &signer, new_address: address)",
+            "description": "Update collateral vault address (admin only)"
+          },
+          "update_interest_rate_model_address": {
+            "signature": "public fun update_interest_rate_model_address(admin: &signer, new_address: address)",
+            "description": "Update interest rate model address (admin only)"
+          },
+          "transfer_admin": {
+            "signature": "public fun transfer_admin(admin: &signer, new_admin: address)",
+            "description": "Transfer admin privileges"
+          },
+          "pause_system": {
+            "signature": "public fun pause_system(admin: &signer)",
+            "description": "Pause system operations"
+          },
+          "unpause_system": {
+            "signature": "public fun unpause_system(admin: &signer)",
+            "description": "Unpause system operations"
+          }
+        },
+        "events": {
+          "LoanCreatedEvent": {
+            "fields": ["loan_id: u64", "borrower: address", "collateral_amount: u64", "loan_amount: u64", "ltv_ratio: u64", "interest_rate: u64", "due_date: u64"]
+          },
+          "LoanRepaidEvent": {
+            "fields": ["loan_id: u64", "borrower: address", "repayment_amount: u64", "remaining_balance: u64", "is_full_repayment: bool"]
+          },
+          "CollateralUnlockedEvent": {
+            "fields": ["loan_id: u64", "borrower: address", "amount: u64"]
+          },
+          "LoanStateChangedEvent": {
+            "fields": ["loan_id: u64", "borrower: address", "old_state: u8", "new_state: u8"]
+          },
+          "ContractUpdatedEvent": {
+            "fields": ["contract_type: u8", "old_address: address", "new_address: address"]
+          },
+          "AdminUpdatedEvent": {
+            "fields": ["old_admin: address", "new_admin: address"]
+          },
+          "PauseStateChangedEvent": {
+            "fields": ["is_paused: bool"]
+          }
+        }
+      },
+      "ctrl_btc_token": {
+        "address": "YOUR_WALLET_ADDRESS::ctrl_btc_token",
+        "functions": {
+          "initialize": {
+            "signature": "public fun initialize(admin: &signer, collateral_vault_address: address): FungibleAssetMetadata",
+            "description": "Initialize the ctrlBTC token"
+          },
+          "mint": {
+            "signature": "public fun mint(amount: u64, to: address)",
+            "description": "Mint ctrlBTC tokens (collateral vault only)"
+          },
+          "burn": {
+            "signature": "public fun burn(amount: u64, from: address)",
+            "description": "Burn ctrlBTC tokens (collateral vault only)"
+          },
+          "get_metadata": {
+            "signature": "public fun get_metadata(): FungibleAssetMetadata",
+            "description": "Get token metadata"
+          }
+        },
+        "events": {
+          "TokenMintedEvent": {
+            "fields": ["to: address", "amount: u64"]
+          },
+          "TokenBurnedEvent": {
+            "fields": ["from: address", "amount: u64"]
+          }
+        }
+      },
+      "ln_btc_token": {
+        "address": "YOUR_WALLET_ADDRESS::ln_btc_token",
+        "functions": {
+          "initialize": {
+            "signature": "public fun initialize(admin: &signer, loan_manager_address: address): FungibleAssetMetadata",
+            "description": "Initialize the lnBTC token"
+          },
+          "mint": {
+            "signature": "public fun mint(amount: u64, to: address)",
+            "description": "Mint lnBTC tokens (loan manager only)"
+          },
+          "burn": {
+            "signature": "public fun burn(amount: u64, from: address)",
+            "description": "Burn lnBTC tokens (loan manager only)"
+          },
+          "get_metadata": {
+            "signature": "public fun get_metadata(): FungibleAssetMetadata",
+            "description": "Get token metadata"
+          }
+        },
+        "events": {
+          "TokenMintedEvent": {
+            "fields": ["to: address", "amount: u64"]
+          },
+          "TokenBurnedEvent": {
+            "fields": ["from: address", "amount: u64"]
+          }
+        }
+      }
+    },
+    "deployment_script": {
+      "address": "YOUR_WALLET_ADDRESS::deploy",
+      "function": "deploy",
+      "signature": "public fun deploy(admin: &signer)",
+      "description": "Deploy and initialize all contracts in the correct order"
+    },
+    "constants": {
+      "LOAN_STATE_ACTIVE": 1,
+      "LOAN_STATE_REPAID": 2,
+      "LOAN_STATE_CLOSED": 3,
+      "LOAN_STATE_DEFAULTED": 4,
+      "MAX_LTV_RATIO": 60,
+      "DEFAULT_INTEREST_RATES": {
+        "30": 5,
+        "45": 8,
+        "60": 10
+      }
+    },
+    "error_codes": {
+      "E_NOT_AUTHORIZED": 1,
+      "E_INVALID_AMOUNT": 2,
+      "E_INSUFFICIENT_COLLATERAL": 3,
+      "E_LOAN_NOT_FOUND": 4,
+      "E_INVALID_LTV_RATIO": 5,
+      "E_LOAN_NOT_ACTIVE": 6,
+      "E_INSUFFICIENT_REPAYMENT": 7,
+      "E_SYSTEM_PAUSED": 8,
+      "E_LOAN_ALREADY_EXISTS": 9,
+      "E_INVALID_CONTRACT_ADDRESS": 10
+    }
+  }
+}
